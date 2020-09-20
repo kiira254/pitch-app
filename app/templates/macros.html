@@ -1,0 +1,7 @@
+{% macro displaypitchList(pitch_list) %}
+
+    {% for pitch in pitch_list %}
+        <li>{{ pitch.title}}</li>
+    {% endfor %}
+
+{% endmacro %}
