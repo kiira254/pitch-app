@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {% extends 'base.html'%}
-        {% import 'macros.html' as macro%}
         <meta charset="utf-8">
         {% if title %}
         <title> {{ title }}</title>
         {% else %}
-        <title> Welcome to Pitching App </title>
+        <title> Welcome to the Pitch app </title>
         {% endif %}
     </head>
     <body>
+        <!-- Content block -->
 
+        {% block content %}
+
+        {% endblock%}
     </body>
 </html>
