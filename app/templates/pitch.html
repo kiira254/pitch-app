@@ -1,1 +1,25 @@
-<h1> Hello pitch {{ id }} </h1>
+{% import 'macros.html' as macro%}
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pitch-details">
+    <h3>{{ pitch.title }}</h3>
+
+    <p class="overview"> {{ pitch.overview }}</p>
+
+    <p class="ratings"> <b> {{ pitch.vote_average }}</b> - <i>{{ pitch.vote_count}} votes </i> </p>
+    <a class="ratings" href="/pitch/review/new/{{pitch.id}}"> Write a new review</a>
+
+</div>
+<div class="row">
+
+    <h1>Reviews</h1>
+    <hr>
+
+    {% if reviews %}
+        {{macro.displayReviews(reviews)}}
+
+    {% else%}
+        <h3 class="text-center">This pitch has no reviews </h3>
+
+        <a class="btn btn-success btn-lg text-center" href="/pitch/review/new/{{pitch.id}}"> Write a new review</a>
+    {% endif %}
+
+</div>
