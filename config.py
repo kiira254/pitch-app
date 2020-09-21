@@ -15,7 +15,7 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
-    
+
     @staticmethod
     def init_app(app):
         pass
@@ -31,6 +31,9 @@ class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://nelly:kamotho@localhost/pitch'
     pass
 
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://nelly:kamotho@localhost/pitch'
+    pass
 
 class DevConfig(Config):
     '''
@@ -44,5 +47,6 @@ class DevConfig(Config):
 
 config_options = {
 'development':DevConfig,
-'production':ProdConfig
+'production':ProdConfig,
+'test':TestConfig
 }

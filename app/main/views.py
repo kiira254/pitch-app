@@ -2,7 +2,7 @@ from flask import render_template,request,redirect,url_for,abort
 from . import main
 from .forms import ReviewForm, UpdateProfile
 from ..models import Review,User
-from flask_login import login_required
+from flask_login import login_required, current_user
 from .. import db, photos
 
 # Review = review.Review
@@ -22,6 +22,20 @@ def index():
 def new_review(id):
     form = ReviewForm()
     pitch = get_pitch(id)
+    if form.validate_on_submit():
+        title = form.title.data
+        review = form.review.data
+
+
+        # Updated review instance
+        new_review = Review(pitch_id=pitch.id,pitch_title=title,image_path=pitch.poster,pitch_review=review,user=current_user)
+
+        # save review method
+        new_review.save_review()
+        return redirect(url_for('.pitch',id = pitch.id ))
+
+    title = f'{pitch.title} review'
+    return render_template('new_review.html',title = title, review_form=form, pitch=pitch)
 
 @main.route('/user/<uname>')
 def profile(uname):
@@ -61,7 +75,7 @@ def update_pic(uname):
         user.profile_pic_path = path
         db.session.commit()
     return redirect(url_for('main.profile',uname=uname))
-    
+
 @main.route('/pitch/<int:pitch_id>')
 def pitch(pitch_id):
 
