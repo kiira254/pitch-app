@@ -1,7 +1,7 @@
-from flask import render_template,request,redirect,url_for
+from flask import render_template,request,redirect,url_for,abort
 from . import main
 from .forms import ReviewForm
-from ..models import Review
+from ..models import Reviews,User
 from flask_login import login_required
 
 # Review = review.Review
@@ -22,7 +22,15 @@ def new_review(id):
     form = ReviewForm()
     pitch = get_pitch(id)
 
+@main.route('/user/<uname>')
+def profile(uname):
+    user = User.query.filter_by(username = uname).first()
 
+    if user is None:
+        abort(404)
+
+    return render_template("profile/profile.html", user = user)
+    
 @main.route('/pitch/<int:pitch_id>')
 def pitch(pitch_id):
 
