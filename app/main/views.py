@@ -2,6 +2,7 @@ from flask import render_template,request,redirect,url_for
 from . import main
 from .forms import ReviewForm
 from ..models import Review
+from flask_login import login_required
 
 # Review = review.Review
 
@@ -14,6 +15,13 @@ def index():
     '''
     title = 'Pitches-Home page'
     return render_template('index.html', title = title)
+
+@main.route('/pitch/review/new/<int:id>', methods = ['GET','POST'])
+@login_required
+def new_review(id):
+    form = ReviewForm()
+    pitch = get_pitch(id)
+
 
 @main.route('/pitch/<int:pitch_id>')
 def pitch(pitch_id):
@@ -32,8 +40,8 @@ def pitch(pitch_id):
 
 # @main.route('/pitch/review/new/<int:id>', methods = ['GET','POST'])
 # def new_review(id):
-#     form = ReviewForm()
-#     # pitch = get_pitch(id)
+#     
+#     
 
 #     if form.validate_on_submit():
 #         title = form.title.data
