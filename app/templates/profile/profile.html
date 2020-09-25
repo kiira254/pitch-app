@@ -1,57 +1,89 @@
-{% extends "base.html" %}
-{% block content %}
-    <div class="content-section">
-      <div class="media">
-        <img class="rounded-circle account-img" src="{{ image_file }}">
-        <div class="media-body">
-          <h2 class="account-heading">{{ current_user.username }}</h2>
-          <p class="text-secondary">{{ current_user.email }}</p>
-        </div>
-      </div>
-        <form method="POST" action="" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Account Info</legend>
-                <div class="form-group">
-                    {{ form.username.label(class="form-control-label") }}
+{% extends 'base.html'%}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-                    {% if form.username.errors %}
-                        {{ form.username(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.username.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.username(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.email.label(class="form-control-label") }}
-                    {% if form.email.errors %}
-                        {{ form.email(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.email(class="form-control form-control-lg") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.picture.label() }}
-                    {{ form.picture(class="form-control-file") }}
-                    {% if form.picture.errors %}
-                        {% for error in form.picture.errors %}
-                            <span class="text-danger">{{ error }}</span></br>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
-        </form>
+{% block styles%}
+    {{super()}}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/profile.css')}}">
+{% endblock%}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+  <!-- displaying  Username-->
+    <div class="col-md-4">
+      <h3> {{user.username| capitalize}} </h3>
+
+      <!--Displaying user bio-->
+      {% if user.bio %}
+        <p> {{user.bio}}</p>
+      {%else%}
+        <p> {{user.username| capitalize}} has no bio </p>
+      {% endif %}
     </div>
+
+    <!--Display profile photo-->
+    <div class="col-md-4">
+
+      {% if user.profile_pic_path %}
+        <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail">
+        {%else%}
+        <p>No profile picture</p>
+      {% endif %}
+
+      {% if user == current_user %}
+        <form  action="{{url_for('main.update_pic',uname=user.username)}}" method="post" enctype = "multipart/form-data">
+
+          <input type="file"  name="photo" class="form-control" required>
+          <input type="submit">
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-2 col-lg-2 col-sm-0"></div>
+    <div class="col-md-8 col-sm-12 col-lg-8">
+      <ul class="list-group">
+        {% for pitch in pitches%}
+        <li class="list-group-item">
+            <!-- {{pitch.pitch}} -->
+            <div class="card w-75">
+              <div class="card-body">
+                <h4 class="card-title"><span class="badge badge-default">Date Posted: <span class="badge badge-light">{{pitch.posted.strftime('%Y-%m-%d')}}</span></span>----<span class="badge badge-default">Pitch Category: <span class="badge badge-light">{{pitch.pitch_category}}</span></span></h4>
+                <p class="card-text">{{pitch.pitch}}</p>
+                {% if pitch.user==current_user%}
+                <div>
+                  <a href="{{url_for('main.update',pname=pitch.id)}}" class="btn btn-primary btn-sm">Update</a>
+                  <button type="button" class="btn btn-danger btn-sm m-2" data-toggle="modal" data-target="#deleteModal" href="{{url_for('main.delete_pitch',pitch_id=pitch.id)}}">Delete</button>
+                </div>
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete this pitch</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-footer ">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <form action="{{url_for('main.delete_pitch',pitch_id=pitch.id)}}" method="POST">
+                            <input class="btn btn-danger" type="submit" value="Delete">
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {%endif%}                          
+              </div>
+            </div>
+        </li>
+        {% endfor%}
+      </ul>
+    </div>
+    <div class="col-md-2 col-lg-2 col-sm-0"></div>
+</div>
+
+</div>
 {% endblock content %}

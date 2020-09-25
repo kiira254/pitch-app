@@ -1,6 +1,6 @@
 from flask import render_template,request,redirect,url_for,abort,flash
 from . import main
-from .forms import ReviewForm, UpdateProfile, CommentForm, FlaskForm
+from .forms import ReviewForm, UpdateProfile, CommentForm, FlaskForm, UploadPitch
 from ..models import Review,User, Comment ,Pitch,Role
 from flask_login import login_required, current_user
 from .. import db, photos
@@ -20,7 +20,7 @@ def index():
     page=request.args.get('page',1,type=int)
     all_pitch=Pitch.query.order_by(Pitch.posted.desc()).paginate(page=page,per_page=10)
   
-    return render_template('index.html',pitches=all_pitch, title = title, form=form)
+    return render_template('index.html',pitches=all_pitch, title = title)
 
 @main.route('/user/<uname>')
 def profile(uname):
