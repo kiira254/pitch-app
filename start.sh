@@ -1,5 +1,7 @@
 export SECRET_KEY='Flask WTF Secret Key'
-export MAIL_USERNAME='nkamotho59@gmail.com'
-export MAIL_PASSWORD='nelly@123'
+export SECRET_KEY="powerful secretkey"
+# export WTF_CSRF_SECRET_KEY="a csrf secret key"
+export MAIL_USERNAME='nkamotho69@gmail.com'
+export MAIL_PASSWORD='neshlike'
 
 python3.6 manage.py server

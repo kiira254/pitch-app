@@ -4,7 +4,10 @@ class Config:
     '''
     General configuration parent class
     '''
-    SECRET_KEY = os.environ.get('SECRET_KEY')
+    # app.config.update(dict(
+    SECRET_KEY="powerful secretkey",
+    SECRET_KEY='Flask WTF Secret Key'
+    # WTF_CSRF_SECRET_KEY = "a csrf secret key"))
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://nelly:kamotho@localhost/pitch'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOADED_PHOTOS_DEST ='app/static/photos'

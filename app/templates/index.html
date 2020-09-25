@@ -1,9 +1,35 @@
 {% extends 'base.html'%}
-{% import 'macros.html' as macro%}
 
-<!-- Styles block -->
+
 {% block styles%}
-    {{ super() }}
+    {{super()}}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{url_for('static',filename='css/index.css')}}">
+    {% endblock%}
+{% block content%}
+    <div class="row">
+        <div class="col-md-2 col-lg-2 col-xs-1"></div>
+        <div class="col-md-8 col-lg-8 col-xs-10 ">
+            <ul class="list-index ">
+                {% for pitch in pitches.items%}
+                <li class="jumbotron " style="padding-left:40px ; list-style-type: none;">                 
+                    <div class="card mb-6 bg-dark text-white">
+                        <div class="card-body">
+                            <h4 class="card-title" style="color:crimson"> Pitch Category: {{pitch.pitch_category}}~ <span></span><a href="{{url_for('main.posted',username=pitch.user.username)}}">Posted By: {{pitch.user.username}}</a></h4>
+                            <p class="card-text">{{pitch.pitch}}</p>
+                            <p class="card-text" style="color:crimson">Posted On: {{pitch.posted.strftime('%Y-%m-%d')}}~<span></span><span></span>Likes: {{pitch.upvotes}}~<span></span>Dislikes: {{pitch.downvotes}}</p>
+                        </div>
+                        <a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-comment" style="font-size:36px;color:blue" aria-hidden="true"></i></a> <span><span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-up" style="font-size:36px;color:green" aria-hidden="true"></i>
+                        </a></span> <span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-down" style="font-size:36px;color:red" aria-hidden="true"></i>
+                        </a></span></span>
+                    </div>              
+                </li>
+                <br>
+                {%endfor%}
+            </ul>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-1"></div>
+    </div>
+
+
 {% endblock %}
-<!-- Content block -->

@@ -1,6 +1,10 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,TextAreaField,SubmitField
-from wtforms.validators import Required
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
+from wtforms.validators import Required, DataRequired, Length, Email, EqualTo, ValidationError
+
+from app.models import User
 
 class ReviewForm(FlaskForm):
 
@@ -11,6 +15,7 @@ class ReviewForm(FlaskForm):
 class UpdateProfile(FlaskForm):
     username = StringField('Username',validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',validators=[DataRequired(), Email()])
+    bio = TextAreaField('Tell us about yourself.',validators = [Required()])
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField('Update')
 
@@ -28,8 +33,7 @@ class UpdateProfile(FlaskForm):
 
 
 class RequestResetForm(FlaskForm):
-    email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+    email = StringField('Email',validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
 
     def validate_email(self, email):
@@ -40,21 +44,30 @@ class RequestResetForm(FlaskForm):
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
+    confirm_password = PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Reset Password')
 
 
-class PostForm(FlaskForm):
+class pitchForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
+    submit = SubmitField('pitch')
 
 
 class CommentForm(FlaskForm):
     comment = TextAreaField('Comment', validators=[DataRequired()])
-    submit = SubmitField('Post')
+    submit = SubmitField('pitch')
 
 
 class Vote(FlaskForm):
     submit = SelectField('Like')
+
+class UploadPitch(FlaskForm):
+    category=SelectField('Select Category',validators=[DataRequired()],choices=[('Interview Pitch','Interview Pitch'),('Tech Pitch','Tech Pitch'),('Political Pitch','Political Pitch'),('Others','None of the above')])
+    pitch=TextAreaField('Write Pitch:',validators=[DataRequired()])
+    submit=SubmitField('Post Pitch')
+
+
+class CommentsForm(FlaskForm):
+    comment=TextAreaField('Type comment:', validators=[DataRequired()])
+    submit=SubmitField('Post Comment')

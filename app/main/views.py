@@ -1,154 +1,31 @@
 from flask import render_template,request,redirect,url_for,abort,flash
 from . import main
-from .forms import ReviewForm, UpdateProfile
-from ..models import Review,User
+from .forms import ReviewForm, UpdateProfile, CommentForm, FlaskForm
+from ..models import Review,User, Comment ,Pitch,Role
 from flask_login import login_required, current_user
 from .. import db, photos
 import markdown2 
 import os
 import secrets
+import functools
 
 # Review = review.Review
 
 # Views
-@main.route('/home')
+
+@main.route('/')
 def index():
 
-    '''
-    View root page function that returns the index page and its data
-    '''
-    quotes = getQuotes()
-    posts = Post.query.all()
-    return render_template('index.html', quotes=quotes, posts=posts, current_user=current_user)
-
-def save_picture(form_picture):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pic', picture_fn)
-
-    output_size = (125, 125)
-    i = Image.open(form_picture)
-    i.thumbnail(output_size)
-    i.save(picture_path)
-
-    return picture_fn
-
-@main.route('/pitch/review/new/<int:id>', methods = ['GET','POST'])
-@login_required
-def new_review(id):
-    form = ReviewForm()
-    pitch = get_pitch(id)
-    if form.validate_on_submit():
-        title = form.title.data
-        review = form.review.data
-
-
-        # Updated review instance
-        new_review = Review(pitch_id=pitch.id,pitch_title=title,image_path=pitch.poster,pitch_review=review,user=current_user)
-
-        # save review method
-        new_review.save_review()
-        return redirect(url_for('.pitch',id = pitch.id ))
-
-    title = f'{pitch.title} review'
-    return render_template('new_review.html',title = title, review_form=form, pitch=pitch)
-
-@main.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
-    form = UpdateAccountForm()
-    if form.validate_on_submit():
-        if form.picture.data:
-            picture_file = save_picture(form.picture.data)
-            current_user.image_file = picture_file
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        db.session.commit()
-        flash('Your account has been updated!', 'success')
-        return redirect(url_for('main.profile'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.email.data = current_user.email
-    image_file = url_for('static', filename='profile_pic/' + current_user.image_file)
-    return render_template('profile/profile.html', title='Profile', image_file=image_file, form=form)
-
-
-@main.route("/new_post", methods=['GET', 'POST'])
-@login_required
-def new_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
-        post.save()
-        flash('Your post has been created!', 'success')
-        return redirect(url_for('main.index'))
-    return render_template('new_post.html', title='New Post',
-                           form=form, legend='New Post')
-
-
-@main.route("/post/<int:post_id>")
-@login_required
-def mypost(post_id):
-    comments = Comment.query.filter_by(post_id=post_id).all()
-    print(comments)
-    heading = 'comments'
-    post = Post.query.get_or_404(post_id)
-    return render_template('posts.html', title=post.title, post=post, comments=comments, heading=heading)
-
-
-@main.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
-@login_required
-def update_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    form = PostForm()
-    if form.validate_on_submit():
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('main.mypost', post_id=post.id))
-    elif request.method == 'GET':
-        form.title.data = post.title
-        form.content.data = post.content
-    return render_template('new_post.html', title='Update Post',
-                           form=form, legend='Update Post')
-
-
-@main.route("/post/<int:post_id>/delete", methods=['POST'])
-@login_required
-def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
-        abort(403)
-    post.delete()
-    flash('Your post has been deleted!', 'success')
-    return redirect(url_for('main.index'))
-
-
-@main.route('/like/<int:id>', methods=['POST', 'GET'])
-@login_required
-def upvote(id):
-    post = Post.query.get(id)
-    clap = Clap(post=post, upvote=1)
-    clap.save()
-    return redirect(url_for('main.myposts'))
-
-
-@main.route('/comment/<post_id>', methods=['Post', 'GET'])
-@login_required
-def comment(post_id):
-    comment = request.form.get('newcomment')
-    new_comment = Comment(comment=comment, user_id=current_user._get_current_object().id, post_id=post_id)
-    new_comment.save()
-    return redirect(url_for('main.mypost', post_id=post_id))
+    title = 'Pitch | App'
+    page=request.args.get('page',1,type=int)
+    all_pitch=Pitch.query.order_by(Pitch.posted.desc()).paginate(page=page,per_page=10)
+  
+    return render_template('index.html',pitches=all_pitch, title = title, form=form)
 
 @main.route('/user/<uname>')
 def profile(uname):
     user = User.query.filter_by(username = uname).first()
-
+   
     if user is None:
         abort(404)
 
@@ -158,6 +35,7 @@ def profile(uname):
 @login_required
 def update_profile(uname):
     user = User.query.filter_by(username = uname).first()
+    
     if user is None:
         abort(404)
 
@@ -184,10 +62,105 @@ def update_pic(uname):
         db.session.commit()
     return redirect(url_for('main.profile',uname=uname))
 
-@main.route('/review/<int:id>')
-def single_review(id):
-    review=Review.query.get(id)
-    if review is None:
+@main.route('/upload/pitch',methods=['GET','POST'])
+@login_required
+def upload_pitch():
+    pitch=UploadPitch()
+    if current_user is None:
         abort(404)
-    format_review = markdown2.markdown(review.pitch_review,extras=["code-friendly", "fenced-code-blocks"])
-    return render_template('review.html',review = review,format_review=format_review)
+    if pitch.validate_on_submit():
+        pitch=Pitch(pitch_category=pitch.category.data,pitch=pitch.pitch.data,user=current_user)
+        db.session.add(pitch)
+        db.session.commit()
+        flash('Pitch Uploaded')
+        return redirect(url_for('main.index'))
+    return render_template('profile/update_pitch.html',pitch=pitch,title='Create Pitch',legend='Create Pitch')
+
+@main.route('/<int:pname>/comment',methods=['GET','POST'])
+@login_required
+def comment(pname):
+    comments=CommentsForm()
+    image=url_for('static',filename='profile/'+ current_user.profile_pic_path)
+    pitch=Pitch.query.filter_by(id=pname).first()
+    comment_query=Comment.query.filter_by(pitch_id=pitch.id).all()
+    
+    if request.args.get('likes'):
+        pitch.upvotes=pitch.upvotes+int(1)
+        db.session.add(pitch)
+        db.session.commit()
+        return redirect(url_for('main.comment',pname=pname))
+
+    
+    elif    request.args.get('dislike'):
+        pitch.downvotes=pitch.downvotes+int(1)
+        db.session.add(pitch)
+        db.session.commit()
+        return redirect(url_for('main.comment',pname=pname))
+
+    if comments.validate_on_submit():
+        comment=Comment(comment=comments.comment.data,pitch_id=pitch.id,user_id=current_user.id)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('main.comment',pname=pname))
+    
+    return render_template('pitch.html' ,comment=comments,pitch=pitch,comments=comment_query,title='Pitch Comment',image=image)
+
+vote=0
+def Upvote(pitch):
+    if pitch:
+        vote=0
+        vote=pitch+1
+
+    return vote
+
+
+
+def Downvote(pitch):
+    if pitch:
+        vote=0
+        vote=pitch+1
+
+    return vote
+
+@main.route('/<int:pname>/update',methods=['GET','POST'])
+@login_required
+def update(pname):
+    pitches=UploadPitch()
+    pitch=Pitch.query.get(pname)
+    if pitch.user != current_user:
+        abort(403)
+    if pitches.validate_on_submit():
+        pitch.pitch_category=pitches.category.data
+        pitch.pitch=pitches.pitch.data
+        db.session.commit()
+        flash('Successfully Updated!')
+        return redirect(url_for('main.profile',uname=pitch.user.username))
+    elif request.method=='GET':
+        pitches.category.data=pitch.pitch_category
+        pitches.pitch.data=pitch.pitch
+
+    return render_template('profile/update_pitch.html',pitch=pitches,legend="Update Pitch")
+
+@main.route('/<int:pitch_id>/delete',methods=['POST'])
+@login_required
+def delete_pitch(pitch_id):
+    pitch=Pitch.query.get(pitch_id)
+    if pitch.user != current_user:
+        abort(403)
+    
+    db.session.delete(pitch)
+    db.session.commit()
+
+    return redirect(url_for('main.profile',uname=pitch.user.username))
+
+
+@main.route('/profile/user/<string:username>')
+def posted(username):
+    user=User.query.filter_by(username=username).first_or_404()
+    image=url_for('static',filename='profile/'+ user.profile_pic_path)
+    page=request.args.get('page',1,type=int)
+    all_pitch=Pitch.query.filter_by(user=user)\
+            .order_by(Pitch.posted.desc())\
+            .paginate(page=page,per_page=10)
+
+    return render_template('posted_by.html',pitches=all_pitch,title=user.username,user=user,image=image)
