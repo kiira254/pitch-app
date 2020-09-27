@@ -63,7 +63,7 @@ class Vote(FlaskForm):
     submit = SelectField('Like')
 
 class UploadPitch(FlaskForm):
-    category=SelectField('Select Category',validators=[DataRequired()],choices=[('Interview Pitch','Interview Pitch'),('Tech Pitch','Tech Pitch'),('Political Pitch','Political Pitch'),('Others','None of the above')])
+    category=SelectField('Select Category',validators=[DataRequired()],choices=[('Interview Pitch','Relationship Pitch','Interview Pitch'),('Tech Pitch','Tech Pitch'),('Political Pitch','Political Pitch'),('Others','None of the above')])
     pitch=TextAreaField('Write Pitch:',validators=[DataRequired()])
     submit=SubmitField('Post Pitch')
 

@@ -74,7 +74,7 @@ def upload_pitch():
         db.session.commit()
         flash('Pitch Uploaded')
         return redirect(url_for('main.index'))
-    return render_template('profile/update_pitch.html',pitch=pitch,title='Create Pitch',legend='Create Pitch')
+        return render_template('profile/update_pitch.html',pitch=pitch,title='Create Pitch',legend='Create Pitch')
 
 @main.route('/<int:pname>/comment',methods=['GET','POST'])
 @login_required
