@@ -7,20 +7,24 @@
     <link rel="stylesheet" href="{{url_for('static',filename='css/index.css')}}">
     {% endblock%}
 {% block content%}
+<div class="container" style="background-color: blue;"></div>
     <div class="row">
         <div class="col-md-2 col-lg-2 col-xs-1"></div>
         <div class="col-md-8 col-lg-8 col-xs-10 ">
             <ul class="list-index ">
                 {% for pitch in pitches.items%}
-                <li class="jumbotron " style="padding-left:40px ; list-style-type: none;">                 
+                <li class="jumbotron " style="padding-left:40px ; list-style-type: none; background-color: rgb(245, 212, 225);">                 
                     <div class="card mb-6 bg-dark text-white">
                         <div class="card-body">
-                            <h4 class="card-title" style="color:rgba(199, 130, 144, 0.911)"> Pitch Category: {{pitch.pitch_category}}~ <span></span><a href="{{url_for('main.posted',username=pitch.user.username)}}">Posted By: {{pitch.user.username}}</a></h4>
-                            <p class="card-text">{{pitch.pitch}}</p>
-                            <p class="card-text" style="color:rgba(216, 143, 157, 0.945)">Posted On: {{pitch.posted.strftime('%Y-%m-%d')}}~<span></span><span></span>Likes: {{pitch.upvotes}}~<span></span>Dislikes: {{pitch.downvotes}}</p>
+                            <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a0e0427e-b98b-4c35-b16b-294c3ea875ec/d5vqaxr-d3e2a4bf-5492-45a1-bfac-9ea740f5246c.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOiIsImlzcyI6InVybjphcHA6Iiwib2JqIjpbW3sicGF0aCI6IlwvZlwvYTBlMDQyN2UtYjk4Yi00YzM1LWIxNmItMjk0YzNlYTg3NWVjXC9kNXZxYXhyLWQzZTJhNGJmLTU0OTItNDVhMS1iZmFjLTllYTc0MGY1MjQ2Yy5naWYifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6ZmlsZS5kb3dubG9hZCJdfQ.1J6UvVBnhtfaZmm3JXLeGXE-sZB2eGI69P760NRGVUM" alt="" style="width:32%; float: left;">
+                            <h2 class="card-title" style="color:rgba(190, 78, 100, 0.911)"> {{pitch.pitch_category}}</h2>
+                            <h4><span></span><a href="{{url_for('main.posted',username=pitch.user.username)}}">By: {{pitch.user.username}}</a></h4>
+                            <p class="card-text" style="color:rgba(94, 68, 73, 0.945)">{{pitch.pitch}}</p>
+                            <p class="card-text" style="color:rgba(184, 98, 115, 0.945)">Posted On: {{pitch.posted.strftime('%Y-%m-%d')}}<span></span></p>
+                            <p><span></span>Likes: {{pitch.upvotes}}   <span></span>  Dislikes: {{pitch.downvotes}}</p>
                         </div>
-                        <a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-comment" style="font-size:36px;color:rgb(212, 160, 156)" aria-hidden="true"></i></a> <span><span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-up" style="font-size:36px;color:green" aria-hidden="true"></i>
-                        </a></span> <span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-down" style="font-size:36px;color:rgb(190, 134, 134)" aria-hidden="true"></i>
+                        <a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-comment" style="font-size:36px;color:rgb(132, 171, 207)" aria-hidden="true"></i></a> <span><span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-up" style="font-size:36px;color:green" aria-hidden="true"></i>
+                        </a></span> <span><a href="{{url_for('main.comment',pname=pitch.id)}}"><i class="fa fa-thumbs-down" style="font-size:36px;color:rgb(185, 71, 71)" aria-hidden="true"></i>
                         </a></span></span>
                     </div>              
                 </li>
@@ -30,5 +34,13 @@
         </div>
         <div class="col-md-2 col-lg-2 col-xs-1"></div>
     </div>
-
+</div>
 {% endblock %}
+
+<style>
+    .jumbotron{
+        background-color: blueviolet;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+    
+</style>

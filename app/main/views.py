@@ -1,22 +1,19 @@
-from flask import render_template,request,redirect,url_for,abort,flash
-from . import main
-from .forms import ReviewForm, UpdateProfile, CommentForm, FlaskForm, UploadPitch
-from ..models import Review,User, Comment ,Pitch,Role
-from flask_login import login_required, current_user
-from .. import db, photos
-import markdown2 
 import os
-import secrets
 import functools
+import secrets
+from flask import render_template,redirect,url_for,abort,flash,request
+from . import main
+from flask_login import login_required,current_user
+from ..models import User,Comment,Pitch,Votes
+from .. import db,photos
+from .forms import UpdateProfile,UploadPitch,CommentsForm
+from flask import current_app
 
-# Review = review.Review
-
-# Views
 
 @main.route('/')
 def index():
 
-    title = 'Pitch | App'
+    title = 'Pitches | Hub'
     page=request.args.get('page',1,type=int)
     all_pitch=Pitch.query.order_by(Pitch.posted.desc()).paginate(page=page,per_page=10)
   
@@ -74,12 +71,12 @@ def upload_pitch():
         db.session.commit()
         flash('Pitch Uploaded')
         return redirect(url_for('main.index'))
-        return render_template('profile/update_pitch.html',pitch=pitch,title='Create Pitch',legend='Create Pitch')
+    return render_template('profile/update_pitch.html',pitch=pitch,title='Create Pitch',legend='Create Pitch')
 
 @main.route('/<int:pname>/comment',methods=['GET','POST'])
 @login_required
 def comment(pname):
-    comments=CommentsForm()
+    comment=CommentsForm()
     image=url_for('static',filename='profile/'+ current_user.profile_pic_path)
     pitch=Pitch.query.filter_by(id=pname).first()
     comment_query=Comment.query.filter_by(pitch_id=pitch.id).all()
@@ -91,7 +88,7 @@ def comment(pname):
         return redirect(url_for('main.comment',pname=pname))
 
     
-    elif    request.args.get('dislike'):
+    elif request.args.get('dislike'):
         pitch.downvotes=pitch.downvotes+int(1)
         db.session.add(pitch)
         db.session.commit()
@@ -103,24 +100,7 @@ def comment(pname):
         db.session.commit()
         return redirect(url_for('main.comment',pname=pname))
     
-    return render_template('pitch.html' ,comment=comments,pitch=pitch,comments=comment_query,title='Pitch Comment',image=image)
-
-vote=0
-def Upvote(pitch):
-    if pitch:
-        vote=0
-        vote=pitch+1
-
-    return vote
-
-
-
-def Downvote(pitch):
-    if pitch:
-        vote=0
-        vote=pitch+1
-
-    return vote
+    return render_template('pitch.html',comment=comments,pitch=pitch,comments=comment_query,title='Pitch Comment',image=image)
 
 @main.route('/<int:pname>/update',methods=['GET','POST'])
 @login_required
@@ -164,3 +144,51 @@ def posted(username):
             .paginate(page=page,per_page=10)
 
     return render_template('posted_by.html',pitches=all_pitch,title=user.username,user=user,image=image)
+
+@main.route('/pitch/upvote/<int:id>')
+@login_required
+def upvote(id):
+    '''
+    View function that add one to the vote_number column in the votes table
+    '''
+    pitch_id = Pitch.query.filter_by(id=id).first()
+
+    if pitch_id is None:
+         abort(404)
+
+    new_vote = Votes(vote=int(1), user_id=current_user.id, pitches_id=pitch_id.id)
+    new_vote.save_vote()
+    return redirect(url_for('.view_pitch', id=id))
+
+
+
+@main.route('/pitch/downvote/<int:id>')
+@login_required
+def downvote(id):
+    pitch_id = Pitch.query.filter_by(id=id).first()
+
+    new_vote = Votes(vote=int(2), user_id=current_user.id, pitches_id=pitch_id.id)
+    new_vote.save_vote()
+    return redirect(url_for('.view_pitch', id=id))
+
+@main.route('/pitch/downvote/<int:id>')
+@login_required
+def vote_count(id):
+
+    votes = Votes.query.filter_by(user_id=current_user.id).all()
+
+    total_votes = votes.count()
+
+    return total_votes
+
+@main.route('/like/<int:pitch_id>/<action>')
+@login_required
+def like_action(comment_id, action):
+    comment = Comment.query.filter_by(id=post_id).first_or_404()
+    if action == 'vote':
+        current_user.vote_comment(comment)
+        db.session.commit()
+    if action == 'downvote':
+        current_user.unlike_comment(comment)
+        db.session.commit()
+    return redirect(request.referrer) 
