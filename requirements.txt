@@ -31,3 +31,4 @@ Werkzeug==0.16.1
 WTForms==2.3.3
 # wxPython==3.0.2.0
 # wxPython-common==3.0.2.0
+gunicorn==20.0.4
