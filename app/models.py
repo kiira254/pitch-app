@@ -74,7 +74,7 @@ class Votes(db.Model):
     id = db.Column(db. Integer, primary_key=True)
     vote = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    pitches_id = db.Column(db.Integer, db.ForeignKey("pitches.id"))
+    pitch_id = db.Column(db.Integer, db.ForeignKey("pitch.id"))
 
     def save_vote(self):
         db.session.add(self)
