@@ -4,10 +4,6 @@ class Config:
     '''
     General configuration parent class
     '''
-    # app.config.update(dict(
-    SECRET_KEY="powerful secretkey",
-    SECRET_KEY='Flask WTF Secret Key'
-    # WTF_CSRF_SECRET_KEY = "a csrf secret key"))
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://nelly:kamotho@localhost/pitch'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOADED_PHOTOS_DEST ='app/static/photos'
@@ -35,7 +31,6 @@ class ProdConfig(Config):
     Args:
         Config: The parent configuration class with General configuration settings
     '''
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://nelly:kamotho@localhost/pitch'
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     pass
 
